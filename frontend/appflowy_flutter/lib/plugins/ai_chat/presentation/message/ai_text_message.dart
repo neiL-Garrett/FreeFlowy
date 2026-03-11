@@ -148,18 +148,25 @@ class ChatAIMessageWidget extends StatelessWidget {
                 },
                 onAIResponseLimit: () {
                   return ChatErrorMessageWidget(
-                    errorMessage:
-                        LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                    errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
                   );
                 },
                 onAIImageResponseLimit: () {
                   return ChatErrorMessageWidget(
-                    errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
+                    errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
                   );
                 },
                 onAIMaxRequired: (message) {
+                  final lowerMessage = message.toLowerCase();
+                  final looksLikePaywallMessage =
+                      lowerMessage.contains('upgrade') ||
+                      lowerMessage.contains('ai max') ||
+                      lowerMessage.contains('aimax');
+
                   return ChatErrorMessageWidget(
-                    errorMessage: message,
+                    errorMessage: looksLikePaywallMessage
+                        ? LocaleKeys.chat_aiServerUnavailable.tr()
+                        : message,
                   );
                 },
                 onInitializingLocalAI: () {
