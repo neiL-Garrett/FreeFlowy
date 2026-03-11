@@ -10,9 +10,7 @@ import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/settings_ai_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/settings_billing_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_view.dart';
@@ -67,7 +65,6 @@ class SettingsDialog extends StatelessWidget {
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
-        currentWorkspaceMemberRole,
         initPage: initPage,
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
@@ -90,7 +87,6 @@ class SettingsDialog extends StatelessWidget {
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
                       currentUserRole: currentWorkspaceMemberRole,
-                      isBillingEnabled: state.isBillingEnabled,
                     ),
                   ),
                   AFDivider(
@@ -168,14 +164,10 @@ class SettingsDialog extends StatelessWidget {
           workspaceId: workspace.workspaceId,
         );
       case SettingsPage.plan:
-        return SettingsPlanView(
-          workspaceId: workspace.workspaceId,
-          user: user,
-        );
       case SettingsPage.billing:
-        return SettingsBillingView(
-          workspaceId: workspace.workspaceId,
-          user: user,
+        return SettingsWorkspaceView(
+          userProfile: user,
+          currentWorkspaceMemberRole: currentWorkspaceMemberRole,
         );
       case SettingsPage.sites:
         return SettingsSitesPage(

@@ -5,7 +5,6 @@ import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -68,16 +67,6 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
       builderContext,
       type: _ActionType.updateNamespace,
     );
-
-    final plan = context.read<SettingsSitesBloc>().state.subscriptionInfo?.plan;
-
-    if (plan != WorkspacePlanPB.ProPlan) {
-      return _buildForbiddenActionButton(
-        context,
-        tooltipMessage: LocaleKeys.settings_sites_namespace_upgradeToPro.tr(),
-        child: child,
-      );
-    }
 
     final isOwner = context
             .watch<UserWorkspaceBloc>()

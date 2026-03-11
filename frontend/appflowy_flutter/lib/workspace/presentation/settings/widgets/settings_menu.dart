@@ -16,14 +16,12 @@ class SettingsMenu extends StatelessWidget {
     required this.changeSelectedPage,
     required this.currentPage,
     required this.userProfile,
-    required this.isBillingEnabled,
     required this.currentUserRole,
   });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
   final UserProfilePB userProfile;
-  final bool isBillingEnabled;
   final AFRolePB? currentUserRole;
 
   @override
@@ -119,22 +117,6 @@ class SettingsMenu extends StatelessWidget {
                 icon: const FlowySvg(FlowySvgs.settings_page_earth_m),
                 changeSelectedPage: changeSelectedPage,
               ),
-            if (FeatureFlag.planBilling.isOn && isBillingEnabled) ...[
-              SettingsMenuElement(
-                page: SettingsPage.plan,
-                selectedPage: currentPage,
-                label: LocaleKeys.settings_planPage_menuLabel.tr(),
-                icon: const FlowySvg(FlowySvgs.settings_page_plan_m),
-                changeSelectedPage: changeSelectedPage,
-              ),
-              SettingsMenuElement(
-                page: SettingsPage.billing,
-                selectedPage: currentPage,
-                label: LocaleKeys.settings_billingPage_menuLabel.tr(),
-                icon: const FlowySvg(FlowySvgs.settings_page_credit_card_m),
-                changeSelectedPage: changeSelectedPage,
-              ),
-            ],
             if (kDebugMode)
               SettingsMenuElement(
                 // no need to translate this page

@@ -6,14 +6,15 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use crate::entities::{
-  RepeatedUserWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
-  UpdateUserWorkspaceSettingPB, UserProfilePB, UserWorkspacePB, WorkspaceSettingsPB,
-  WorkspaceSubscriptionInfoPB, WorkspaceTypePB,
+  RecurringIntervalPB, RepeatedUserWorkspacePB, SubscribeWorkspacePB, SubscriptionPlanPB,
+  SuccessWorkspaceSubscriptionPB, UpdateUserWorkspaceSettingPB, UserProfilePB, UserWorkspacePB,
+  WorkspacePlanPB, WorkspaceSettingsPB, WorkspaceSubscriptionInfoPB, WorkspaceSubscriptionStatusPB,
+  WorkspaceTypePB,
 };
-use crate::notification::{send_notification, UserNotification};
+use crate::notification::{UserNotification, send_notification};
 use crate::services::billing_check::PeriodicallyCheckBillingState;
 use crate::services::data_import::{
-  generate_import_data, upload_collab_objects_data, ImportedFolder,
+  ImportedFolder, generate_import_data, upload_collab_objects_data,
 };
 
 use crate::user_manager::UserManager;
@@ -534,8 +535,13 @@ impl UserManager {
       .get_user_service()?
       .get_workspace_subscription_one(&workspace_id)
       .await?;
-
-    Ok(WorkspaceSubscriptionInfoPB::from(subscriptions))
+    let mut subscription_info = WorkspaceSubscriptionInfoPB::from(subscriptions);
+    subscription_info.plan = WorkspacePlanPB::ProPlan;
+    subscription_info.plan_subscription.workspace_id = workspace_id.to_string();
+    subscription_info.plan_subscription.subscription_plan = SubscriptionPlanPB::Pro;
+    subscription_info.plan_subscription.status = WorkspaceSubscriptionStatusPB::Active;
+    subscription_info.plan_subscription.interval = RecurringIntervalPB::Month;
+    Ok(subscription_info)
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -583,26 +589,27 @@ impl UserManager {
     &self,
     workspace_id: &Uuid,
   ) -> FlowyResult<WorkspaceUsageAndLimit> {
-    let workspace_usage = self
+    let mut workspace_usage = self
       .cloud_service()?
       .get_user_service()?
       .get_workspace_usage(workspace_id)
       .await?;
 
-    // Check if the current workspace storage is not unlimited. If it is not unlimited,
-    // verify whether the storage bytes exceed the storage limit.
-    // If the storage is unlimited, allow writing. Otherwise, allow writing only if
-    // the storage bytes are less than the storage limit.
-    let can_write = if workspace_usage.storage_bytes_unlimited {
-      true
-    } else {
-      workspace_usage.storage_bytes < workspace_usage.storage_bytes_limit
-    };
+    workspace_usage.member_count_limit = i64::MAX;
+    workspace_usage.storage_bytes_limit = i64::MAX;
+    workspace_usage.storage_bytes_unlimited = true;
+    workspace_usage.single_upload_limit = i64::MAX;
+    workspace_usage.single_upload_unlimited = true;
+    workspace_usage.ai_responses_count_limit = i64::MAX;
+    workspace_usage.ai_image_responses_count_limit = i64::MAX;
+    workspace_usage.ai_responses_unlimited = true;
+    workspace_usage.local_ai = true;
+
     self
       .app_life_cycle
       .read()
       .await
-      .on_storage_permission_updated(can_write);
+      .on_storage_permission_updated(true);
 
     Ok(workspace_usage)
   }

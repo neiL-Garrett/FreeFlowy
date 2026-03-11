@@ -22,14 +22,16 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::RequestTimeout => ErrorCode::RequestTimeout,
       AppErrorCode::PayloadTooLarge => ErrorCode::PayloadTooLarge,
       AppErrorCode::UserUnAuthorized => ErrorCode::UserUnauthorized,
-      AppErrorCode::WorkspaceLimitExceeded => ErrorCode::WorkspaceLimitExceeded,
-      AppErrorCode::WorkspaceMemberLimitExceeded => ErrorCode::WorkspaceMemberLimitExceeded,
-      AppErrorCode::AIResponseLimitExceeded => ErrorCode::AIResponseLimitExceeded,
-      AppErrorCode::AIImageResponseLimitExceeded => ErrorCode::AIImageResponseLimitExceeded,
-      AppErrorCode::AIMaxRequired => ErrorCode::AIMaxRequired,
-      AppErrorCode::FileStorageLimitExceeded => ErrorCode::FileStorageLimitExceeded,
-      AppErrorCode::SingleUploadLimitExceeded => ErrorCode::SingleUploadLimitExceeded,
-      AppErrorCode::CustomNamespaceDisabled => ErrorCode::CustomNamespaceRequirePlanUpgrade,
+      AppErrorCode::WorkspaceLimitExceeded
+      | AppErrorCode::WorkspaceMemberLimitExceeded
+      | AppErrorCode::AIResponseLimitExceeded
+      | AppErrorCode::AIImageResponseLimitExceeded
+      | AppErrorCode::AIMaxRequired
+      | AppErrorCode::FileStorageLimitExceeded
+      | AppErrorCode::SingleUploadLimitExceeded
+      | AppErrorCode::CustomNamespaceDisabled
+      | AppErrorCode::FreePlanGuestLimitExceeded
+      | AppErrorCode::PaidPlanGuestLimitExceeded => ErrorCode::NotEnoughPermissions,
       AppErrorCode::CustomNamespaceDisallowed => ErrorCode::CustomNamespaceNotAllowed,
       AppErrorCode::PublishNamespaceAlreadyTaken => ErrorCode::CustomNamespaceAlreadyTaken,
       AppErrorCode::CustomNamespaceTooShort => ErrorCode::CustomNamespaceTooShort,
@@ -40,12 +42,26 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::PublishNameTooLong => ErrorCode::PublishNameTooLong,
       AppErrorCode::CustomNamespaceInvalidCharacter => ErrorCode::CustomNamespaceInvalidCharacter,
       AppErrorCode::AIServiceUnavailable => ErrorCode::AIServiceUnavailable,
-      AppErrorCode::FreePlanGuestLimitExceeded => ErrorCode::FreePlanGuestLimitExceeded,
       AppErrorCode::InvalidGuest => ErrorCode::InvalidGuest,
-      AppErrorCode::PaidPlanGuestLimitExceeded => ErrorCode::PaidPlanGuestLimitExceeded,
       _ => ErrorCode::Internal,
     };
 
-    FlowyError::new(code, error.message)
+    let message = match error.code {
+      AppErrorCode::WorkspaceLimitExceeded
+      | AppErrorCode::WorkspaceMemberLimitExceeded
+      | AppErrorCode::AIResponseLimitExceeded
+      | AppErrorCode::AIImageResponseLimitExceeded
+      | AppErrorCode::AIMaxRequired
+      | AppErrorCode::FileStorageLimitExceeded
+      | AppErrorCode::SingleUploadLimitExceeded
+      | AppErrorCode::CustomNamespaceDisabled
+      | AppErrorCode::FreePlanGuestLimitExceeded
+      | AppErrorCode::PaidPlanGuestLimitExceeded => {
+        "This action is unavailable on the current server.".to_string()
+      },
+      _ => error.message.to_string(),
+    };
+
+    FlowyError::new(code, message)
   }
 }

@@ -11,7 +11,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/web_url_hint_wi
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -19,7 +18,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -451,26 +449,5 @@ class BillingGateGuard extends StatelessWidget {
 }
 
 Future<bool> isBillingEnabled() async {
-  final result = await UserEventGetCloudConfig().send();
-  return result.fold(
-    (cloudSetting) {
-      final whiteList = [
-        "https://beta.appflowy.cloud",
-        "https://test.appflowy.cloud",
-      ];
-      if (kDebugMode) {
-        whiteList.add("http://localhost:8000");
-      }
-
-      final isWhiteListed = whiteList.contains(cloudSetting.serverUrl);
-      if (!isWhiteListed) {
-        Log.warn("Billing is not enabled for server ${cloudSetting.serverUrl}");
-      }
-      return isWhiteListed;
-    },
-    (err) {
-      Log.error("Failed to get cloud config: $err");
-      return false;
-    },
-  );
+  return false;
 }

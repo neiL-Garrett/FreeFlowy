@@ -5,7 +5,6 @@ import 'package:appflowy/features/share_tab/presentation/widgets/copy_link_widge
 import 'package:appflowy/features/share_tab/presentation/widgets/general_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/people_with_access_section.dart';
 import 'package:appflowy/features/share_tab/presentation/widgets/share_with_user_widget.dart';
-import 'package:appflowy/features/share_tab/presentation/widgets/upgrade_to_pro_widget.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -24,8 +23,6 @@ class ShareTab extends StatefulWidget {
     required this.pageId,
     required this.workspaceName,
     required this.workspaceIcon,
-    required this.isInProPlan,
-    required this.onUpgradeToPro,
   });
 
   final String workspaceId;
@@ -34,9 +31,6 @@ class ShareTab extends StatefulWidget {
   // these 2 values should be provided by the share tab bloc
   final String workspaceName;
   final String workspaceIcon;
-
-  final bool isInProPlan;
-  final VoidCallback onUpgradeToPro;
 
   @override
   State<ShareTab> createState() => _ShareTabState();
@@ -99,17 +93,6 @@ class _ShareTabState extends State<ShareTab> {
                 accessLevel: ShareAccessLevel.readOnly,
               ),
             ),
-
-            if (!widget.isInProPlan && !state.hasClickedUpgradeToPro) ...[
-              UpgradeToProWidget(
-                onClose: () {
-                  context.read<ShareTabBloc>().add(
-                        ShareTabEvent.upgradeToProClicked(),
-                      );
-                },
-                onUpgrade: widget.onUpgradeToPro,
-              ),
-            ],
 
             // shared users
             if (state.users.isNotEmpty) ...[
@@ -222,8 +205,6 @@ class _ShareTabState extends State<ShareTab> {
             message = LocaleKeys.shareTab_emailAlreadyInList.tr();
             break;
           case ErrorCode.FreePlanGuestLimitExceeded:
-            message = LocaleKeys.shareTab_upgradeToProToInviteGuests.tr();
-            break;
           case ErrorCode.PaidPlanGuestLimitExceeded:
             message = LocaleKeys.shareTab_maxGuestsReached.tr();
             break;

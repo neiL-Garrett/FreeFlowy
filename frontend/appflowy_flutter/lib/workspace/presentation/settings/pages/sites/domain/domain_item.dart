@@ -4,15 +4,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
-import 'package:appflowy/shared/colors.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/constants.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/domain_more_action.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/domain/home_page_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/publish_info_view_item.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -76,22 +73,6 @@ class DomainItem extends StatelessWidget {
   }
 
   Widget _buildHomepage(BuildContext context) {
-    final plan = context.read<SettingsSitesBloc>().state.subscriptionInfo?.plan;
-
-    if (plan == null) {
-      return const SizedBox.shrink();
-    }
-
-    final isFreePlan = plan == WorkspacePlanPB.FreePlan;
-    if (isFreePlan) {
-      return const Padding(
-        padding: EdgeInsets.only(
-          left: SettingsPageSitesConstants.alignPadding,
-        ),
-        child: _FreePlanUpgradeButton(),
-      );
-    }
-
     return const _HomePageButton();
   }
 }
@@ -216,61 +197,6 @@ class _HomePageButton extends StatelessWidget {
       text: FlowyText(
         LocaleKeys.settings_sites_selectHomePage.tr(),
         figmaLineHeight: 18.0,
-      ),
-    );
-  }
-}
-
-class _FreePlanUpgradeButton extends StatelessWidget {
-  const _FreePlanUpgradeButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final isOwner = context
-            .watch<UserWorkspaceBloc>()
-            .state
-            .currentWorkspace
-            ?.role
-            .isOwner ??
-        false;
-    return Container(
-      alignment: Alignment.centerLeft,
-      child: FlowyTooltip(
-        message: LocaleKeys.settings_sites_homePage_upgradeToPro.tr(),
-        child: PrimaryRoundedButton(
-          text: 'Pro ↗',
-          fontSize: 12.0,
-          figmaLineHeight: 16.0,
-          fontWeight: FontWeight.w600,
-          radius: 8.0,
-          textColor: context.proPrimaryColor,
-          backgroundColor: context.proSecondaryColor,
-          margin: const EdgeInsets.symmetric(
-            horizontal: 8.0,
-            vertical: 6.0,
-          ),
-          hoverColor: context.proSecondaryColor.withValues(alpha: 0.9),
-          onTap: () {
-            if (isOwner) {
-              showToastNotification(
-                message:
-                    LocaleKeys.settings_sites_namespace_redirectToPayment.tr(),
-                type: ToastificationType.error,
-              );
-
-              context.read<SettingsSitesBloc>().add(
-                    const SettingsSitesEvent.upgradeSubscription(),
-                  );
-            } else {
-              showToastNotification(
-                message: LocaleKeys
-                    .settings_sites_namespace_pleaseAskOwnerToSetHomePage
-                    .tr(),
-                type: ToastificationType.error,
-              );
-            }
-          },
-        ),
       ),
     );
   }

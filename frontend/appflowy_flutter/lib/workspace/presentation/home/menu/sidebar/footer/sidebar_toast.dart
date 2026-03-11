@@ -22,40 +22,7 @@ class SidebarToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<SidebarPlanBloc, SidebarPlanState>(
-      listener: (_, state) {
-        // Show a dialog when the user hits the storage limit, After user click ok, it will navigate to the plan page.
-        // Even though the dislog is dissmissed, if the user triggers the storage limit again, the dialog will show again.
-        state.tierIndicator.maybeWhen(
-          storageLimitHit: () => WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _showStorageLimitDialog(context),
-          ),
-          singleFileLimitHit: () =>
-              WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _showSingleFileLimitDialog(context),
-          ),
-          orElse: () {},
-        );
-      },
-      builder: (_, state) {
-        return state.tierIndicator.when(
-          loading: () => const SizedBox.shrink(),
-          storageLimitHit: () => PlanIndicator(
-            planName: SubscriptionPlanPB.Free.label,
-            text: LocaleKeys.sideBar_upgradeToPro.tr(),
-            onTap: () => _handleOnTap(context, SubscriptionPlanPB.Pro),
-            reason: LocaleKeys.sideBar_storageLimitDialogTitle.tr(),
-          ),
-          aiMaxiLimitHit: () => PlanIndicator(
-            planName: SubscriptionPlanPB.AiMax.label,
-            text: LocaleKeys.sideBar_upgradeToAIMax.tr(),
-            onTap: () => _handleOnTap(context, SubscriptionPlanPB.AiMax),
-            reason: LocaleKeys.sideBar_aiResponseLimitTitle.tr(),
-          ),
-          singleFileLimitHit: () => const SizedBox.shrink(),
-        );
-      },
-    );
+    return const SizedBox.shrink();
   }
 
   void _showStorageLimitDialog(BuildContext context) => showConfirmDialog(

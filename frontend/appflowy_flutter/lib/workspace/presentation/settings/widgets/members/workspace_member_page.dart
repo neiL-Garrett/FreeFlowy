@@ -246,18 +246,9 @@ class WorkspaceMembersPage extends StatelessWidget {
                   .tr()
               : LocaleKeys.settings_appearance_members_failedToInviteMember
                   .tr();
-          showConfirmDialog(
+          showDialog(
             context: context,
-            title: LocaleKeys
-                .settings_appearance_members_inviteFailedDialogTitle
-                .tr(),
-            description: message,
-            confirmLabel: LocaleKeys
-                .settings_appearance_members_memberLimitExceededUpgrade
-                .tr(),
-            onConfirm: (_) => context
-                .read<WorkspaceMemberBloc>()
-                .add(const WorkspaceMemberEvent.upgradePlan()),
+            builder: (context) => NavigatorOkCancelDialog(message: message),
           );
         },
       );

@@ -1,11 +1,8 @@
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -32,14 +29,13 @@ class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
   SettingsDialogBloc(
     UserProfilePB userProfile,
-    this.currentWorkspaceMemberRole, {
+    {
     SettingsPage? initPage,
   })  : _userListener = UserListener(userProfile: userProfile),
         super(SettingsDialogState.initial(userProfile, initPage)) {
     _dispatch();
   }
 
-  final AFRolePB? currentWorkspaceMemberRole;
   final UserListener _userListener;
 
   @override
@@ -55,10 +51,7 @@ class SettingsDialogBloc
           initial: () async {
             _userListener.start(onProfileUpdated: _profileUpdated);
 
-            final isBillingEnabled = await _isBillingEnabled(
-              state.userProfile,
-              currentWorkspaceMemberRole,
-            );
+            final isBillingEnabled = await _isBillingEnabled();
             if (isBillingEnabled) {
               emit(state.copyWith(isBillingEnabled: true));
             }
@@ -87,40 +80,8 @@ class SettingsDialogBloc
     );
   }
 
-  Future<bool> _isBillingEnabled(
-    UserProfilePB userProfile, [
-    AFRolePB? currentWorkspaceMemberRole,
-  ]) async {
-    if ([
-      WorkspaceTypePB.LocalW,
-    ].contains(userProfile.workspaceType)) {
-      return false;
-    }
-
-    if (currentWorkspaceMemberRole == null ||
-        currentWorkspaceMemberRole != AFRolePB.Owner) {
-      return false;
-    }
-
-    if (kDebugMode) {
-      return true;
-    }
-
-    final result = await UserEventGetCloudConfig().send();
-    return result.fold(
-      (cloudSetting) {
-        final whiteList = [
-          "https://beta.appflowy.cloud",
-          "https://test.appflowy.cloud",
-        ];
-
-        return whiteList.contains(cloudSetting.serverUrl);
-      },
-      (err) {
-        Log.error("Failed to get cloud config: $err");
-        return false;
-      },
-    );
+  Future<bool> _isBillingEnabled() async {
+    return false;
   }
 }
 

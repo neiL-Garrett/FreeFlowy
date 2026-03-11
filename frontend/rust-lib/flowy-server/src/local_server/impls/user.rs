@@ -283,7 +283,7 @@ impl UserCloudService for LocalServerUserServiceImpl {
   ) -> Result<WorkspaceUsageAndLimit, FlowyError> {
     Ok(WorkspaceUsageAndLimit {
       member_count: 1,
-      member_count_limit: 1,
+      member_count_limit: i64::MAX,
       storage_bytes: i64::MAX,
       storage_bytes_limit: i64::MAX,
       storage_bytes_unlimited: true,
