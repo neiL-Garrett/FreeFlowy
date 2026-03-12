@@ -83,7 +83,7 @@ class FlowyErrorPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const FlowyText.medium(
-            "AppFlowy Error",
+            "FreeFlowy Error",
             fontSize: _titleFontSize,
           ),
           const SizedBox(height: _titleToMessagePadding),
